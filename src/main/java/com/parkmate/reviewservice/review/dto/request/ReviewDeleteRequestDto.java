@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewDeleteRequestDto {
 
-    private Long reviewId;
+    private String reviewId;
     private String userUuid;
 
     @Builder
-    private ReviewDeleteRequestDto(Long reviewId, String userUuid) {
+    private ReviewDeleteRequestDto(String reviewId, String userUuid) {
         this.reviewId = reviewId;
         this.userUuid = userUuid;
     }

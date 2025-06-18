@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewImageMappingResponseDto {
 
-    private Long reviewId;
+    private String reviewId;
     private String imageUrl;
     private String type;
 
     @Builder
-    private ReviewImageMappingResponseDto(Long reviewId,
+    private ReviewImageMappingResponseDto(String reviewId,
                                           String imageUrl,
                                           String type) {
         this.reviewId = reviewId;

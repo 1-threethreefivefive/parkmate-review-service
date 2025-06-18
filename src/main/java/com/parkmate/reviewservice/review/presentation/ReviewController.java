@@ -54,7 +54,7 @@ public class ReviewController {
     )
     @GetMapping("/{reviewId}")
     public ApiResponse<ReviewResponseVo> getReview(
-            @PathVariable Long reviewId) {
+            @PathVariable String reviewId) {
 
         ReviewResponseDto dto = reviewService.findById(reviewId);
 
@@ -75,10 +75,10 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ApiResponse<String> updateReview(
             @RequestHeader("X-User-UUID") String userUuid,
-            @PathVariable Long reviewId,
+            @PathVariable String reviewId,
             @RequestBody ReviewUpdateRequestVo reviewUpdateRequestVo) {
 
-        reviewService.update(
+        reviewFacade.updateReview(
                 ReviewUpdateRequestDto.of(reviewId, userUuid, reviewUpdateRequestVo)
         );
 
@@ -95,7 +95,7 @@ public class ReviewController {
     )
     @PutMapping("/{reviewId}/softdelete")
     public ApiResponse<Void> softDeleteReview(
-            @PathVariable Long reviewId,
+            @PathVariable String reviewId,
             @RequestHeader("X-User-UUID") String userUuid) {
 
         reviewFacade.softDeleteReview(reviewId, userUuid);

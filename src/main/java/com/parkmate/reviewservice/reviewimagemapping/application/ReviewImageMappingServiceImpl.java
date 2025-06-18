@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -20,10 +19,10 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public List<ReviewImageMappingResponseDto> registerReviewImages(Long reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
+    public void registerReviewImages(String reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
 
         if (reviewImageRegisterRequestDtos == null || reviewImageRegisterRequestDtos.isEmpty()) {
-            return Collections.emptyList();
+            return;
         }
 
         markAsDeletedByReviewId(reviewId);
@@ -50,14 +49,14 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
         List<ReviewImageMapping> savedMappings = reviewImageMappingRepository.saveAll(reviewImageMappingList);
 
-        return savedMappings.stream()
+        savedMappings.stream()
                 .map(ReviewImageMappingResponseDto::from)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<String> getImageUrlsByReviewId(Long reviewId) {
+    public List<String> getImageUrlsByReviewId(String reviewId) {
 
         return reviewImageMappingRepository.findAllByReviewIdAndStatusOrderByImageIndex(reviewId, ReviewImageMappingStatus.ACTIVE)
                 .stream()
@@ -67,7 +66,7 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void markAsDeletedByReviewId(Long reviewId) {
+    public void markAsDeletedByReviewId(String reviewId) {
 
         List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewId(reviewId);
 

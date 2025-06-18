@@ -11,7 +11,7 @@ public interface ReviewService {
 
     void update(ReviewUpdateRequestDto requestDto);
 
-    Review findEntityByIdAndUserUuid(Long reviewId, String userUuid);
+    ReviewResponseDto findById(String reviewId);
 
-    ReviewResponseDto findById(Long reviewId);
+    Review findActiveReviewByUser(String reviewId, String userUuid);
 }

@@ -1,14 +1,14 @@
 package com.parkmate.reviewservice.reviewimagemapping.application;
 
 import com.parkmate.reviewservice.reviewimagemapping.dto.request.ReviewImageRegisterRequestDto;
-import com.parkmate.reviewservice.reviewimagemapping.dto.response.ReviewImageMappingResponseDto;
+
 import java.util.List;
 
 public  interface  ReviewImageMappingService {
 
-    List<ReviewImageMappingResponseDto> registerReviewImages(Long reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos);
+    void registerReviewImages(String reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos);
 
-    List<String> getImageUrlsByReviewId(Long reviewId);
+    List<String> getImageUrlsByReviewId(String reviewId);
 
-    void markAsDeletedByReviewId(Long reviewId);
+    void markAsDeletedByReviewId(String reviewId);
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ReviewImageMappingRepository extends JpaRepository<ReviewImageMapping, Long> {
 
-    List<ReviewImageMapping> findAllByReviewIdAndStatusOrderByImageIndex(Long reviewId, ReviewImageMappingStatus status);
+    List<ReviewImageMapping> findAllByReviewIdAndStatusOrderByImageIndex(String reviewId, ReviewImageMappingStatus status);
 
-    List<ReviewImageMapping> findAllByReviewId(Long reviewId);
+    List<ReviewImageMapping> findAllByReviewId(String reviewId);
 }
