@@ -1,7 +1,10 @@
 package com.parkmate.reviewservice.review.application;
 
 import com.parkmate.reviewservice.common.exception.BaseException;
+import com.parkmate.reviewservice.common.generator.UUIDGenerator;
 import com.parkmate.reviewservice.common.response.ResponseStatus;
+import com.parkmate.reviewservice.kafka.event.CreateReviewEvent;
+import com.parkmate.reviewservice.kafka.producer.CreateReviewProducer;
 import com.parkmate.reviewservice.review.domain.Review;
 import com.parkmate.reviewservice.review.domain.ReviewStatus;
 import com.parkmate.reviewservice.review.dto.request.ReviewRegisterRequestDto;
@@ -9,6 +12,7 @@ import com.parkmate.reviewservice.review.dto.request.ReviewUpdateRequestDto;
 import com.parkmate.reviewservice.review.dto.response.ReviewResponseDto;
 import com.parkmate.reviewservice.review.infrastructure.ReviewRepository;
 import com.parkmate.reviewservice.reviewimagemapping.application.ReviewImageMappingService;
+import com.parkmate.reviewservice.reviewimagemapping.dto.request.ReviewImageRegisterRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +24,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewImageMappingService reviewImageMappingService;
+    private final CreateReviewProducer createReviewProducer;
 
     @Transactional
     @Override
     public Review register(ReviewRegisterRequestDto reviewRegisterRequestDto) {
+
 
 //        // 결제 건 당 리뷰 1건 → paymentKey 중복 체크
 //        boolean reviewExistsForPayment = reviewRepository.existsByPaymentKey(requestDto.getPaymentKey());
@@ -43,6 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
 //        }
 
         Review review = Review.builder()
+                .reviewId(UUIDGenerator.generateUUID())
                 .userUuid(reviewRegisterRequestDto.getUserUuid())
                 .parkingLotUuid(reviewRegisterRequestDto.getParkingLotUuid())
                 // .paymentKey(requestDto.getPaymentKey())
@@ -50,7 +57,35 @@ public class ReviewServiceImpl implements ReviewService {
                 .rating(reviewRegisterRequestDto.getRating())
                 .build();
 
-        return reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+
+        if (reviewRegisterRequestDto.getImageMappings() != null &&
+                !reviewRegisterRequestDto.getImageMappings().isEmpty()) {
+            reviewImageMappingService.registerReviewImages(
+                    savedReview.getId(),
+                    reviewRegisterRequestDto.getImageMappings()
+            );
+        }
+
+        CreateReviewEvent event = CreateReviewEvent.builder()
+                .reviewUuid(savedReview.getReviewId())
+                .userUuid(savedReview.getUserUuid())
+                .parkingLotUuid(savedReview.getParkingLotUuid())
+                .content(savedReview.getContent())
+                .rating(savedReview.getRating())
+                .imageUrls(
+                        reviewRegisterRequestDto.getImageMappings().stream()
+                                .map(ReviewImageRegisterRequestDto::getImageUrl)
+                                .toList()
+                )
+                .likeCount(0)
+                .dislikeCount(0)
+                .createdAt(savedReview.getCreatedAt())
+                .build();
+
+        createReviewProducer.send(event);
+
+        return savedReview;
     }
 
     @Transactional(readOnly = true)

@@ -19,8 +19,11 @@ public class Review extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("리뷰 PK")
-    @Column(name = "review_id")
     private Long id;
+
+    @Comment("리뷰 UUID - 외부 식별자")
+    @Column(nullable = false, unique = true, length = 36)
+    private String reviewId;
 
     @Column(nullable = false, length = 36)
     @Comment("회원 UUID")
@@ -29,7 +32,6 @@ public class Review extends BaseEntity {
     @Column(nullable = false, length = 36)
     @Comment("주차장 UUID")
     private String parkingLotUuid;
-
 
     @Column(nullable = false, columnDefinition = "TEXT")
     @Comment("리뷰 내용")
@@ -49,11 +51,13 @@ public class Review extends BaseEntity {
     private ReviewStatus status;
 
     @Builder
-    private Review(String userUuid,
+    private Review(String reviewId,
+                   String userUuid,
                    String parkingLotUuid,
                    String content,
                    int rating) {
 
+        this.reviewId = reviewId;
         this.userUuid = userUuid;
         this.parkingLotUuid = parkingLotUuid;
         this.content = content;
