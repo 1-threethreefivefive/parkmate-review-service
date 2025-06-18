@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewResponseVo {
 
-    private Long reviewId;
+    private String reviewId;
     private String userUuid;
     private String parkingLotUuid;
     private String paymentKey;
@@ -19,7 +19,7 @@ public class ReviewResponseVo {
     private List<String> imageUrls;
 
     @Builder
-    private ReviewResponseVo(Long reviewId,
+    private ReviewResponseVo(String reviewId,
                              String userUuid,
                              String parkingLotUuid,
                              String paymentKey,

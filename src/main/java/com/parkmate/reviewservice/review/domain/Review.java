@@ -18,7 +18,6 @@ public class Review extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("리뷰 PK")
     private Long id;
 
     @Comment("리뷰 UUID - 외부 식별자")
@@ -39,7 +38,7 @@ public class Review extends BaseEntity {
 
     @Column(nullable = false)
     @Comment("평점")
-    private int rating;  // 변경됨 → int
+    private int rating;
 
     @Comment("삭제 일시")
     @Column
@@ -76,6 +75,12 @@ public class Review extends BaseEntity {
         this.status = ReviewStatus.DELETED;
     }
 
+    @PrePersist
+    protected void onPrePersist() {
+        if (this.reviewId == null) {
+            this.reviewId = java.util.UUID.randomUUID().toString();
+        }
+    }
     public boolean isActive() {
         return this.status == ReviewStatus.ACTIVE;
     }

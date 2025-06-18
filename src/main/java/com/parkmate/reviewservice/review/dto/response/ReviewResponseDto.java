@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class ReviewResponseDto {
 
-    private final Long reviewId;
+    private final String reviewId;
     private final String userUuid;
     private final String parkingLotUuid;
     private final String paymentKey;
@@ -17,7 +17,7 @@ public class ReviewResponseDto {
     private final List<String> imageUrls;
 
     @Builder
-    private ReviewResponseDto(Long reviewId,
+    private ReviewResponseDto(String reviewId,
                               String userUuid,
                               String parkingLotUuid,
                               String paymentKey,
@@ -35,7 +35,7 @@ public class ReviewResponseDto {
 
     public static ReviewResponseDto from(Review review, List<String> imageUrls) {
         return ReviewResponseDto.builder()
-                .reviewId(review.getId())
+                .reviewId(review.getReviewId())
                 .userUuid(review.getUserUuid())
                 .parkingLotUuid(review.getParkingLotUuid())
                 //.paymentKey(review.getPaymentKey())

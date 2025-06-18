@@ -11,14 +11,14 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewUpdateRequestDto {
 
-    private Long reviewId;
+    private String reviewId;
     private String userUuid;
     private int rating;
     private String content;
     private List<ReviewImageRegisterRequestDto> imageMappings;
 
     @Builder
-    private ReviewUpdateRequestDto(Long reviewId,
+    private ReviewUpdateRequestDto(String reviewId,
                                    String userUuid,
                                    int  rating,
                                    String content,
@@ -30,7 +30,7 @@ public class ReviewUpdateRequestDto {
         this.imageMappings = imageMappings;
     }
 
-    public static ReviewUpdateRequestDto of(Long reviewId,
+    public static ReviewUpdateRequestDto of(String reviewId,
                                             String userUuid,
                                             ReviewUpdateRequestVo reviewUpdateRequestVo) {
 
