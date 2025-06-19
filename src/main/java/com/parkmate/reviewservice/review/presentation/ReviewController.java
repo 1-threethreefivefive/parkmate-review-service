@@ -52,11 +52,11 @@ public class ReviewController {
             description = "리뷰 조회 API 입니다. 리뷰 UUID를 PathVariable로 전달하여 리뷰 상세 정보를 조회합니다.",
             tags = {"REVIEW-SERVICE"}
     )
-    @GetMapping("/{reviewId}")
+    @GetMapping("/{reviewUuid}")
     public ApiResponse<ReviewResponseVo> getReview(
-            @PathVariable String reviewId) {
+            @PathVariable String reviewUuid) {
 
-        ReviewResponseDto dto = reviewService.findById(reviewId);
+        ReviewResponseDto dto = reviewService.findById(reviewUuid);
 
         ReviewResponseVo responseVo = ReviewResponseVo.from(dto);
 
@@ -72,14 +72,14 @@ public class ReviewController {
             description = "리뷰 수정 API 입니다. 리뷰 UUID와 수정할 내용을 전달하여 리뷰를 수정합니다.",
             tags = {"REVIEW-SERVICE"}
     )
-    @PutMapping("/{reviewId}")
+    @PutMapping("/{reviewUuid}")
     public ApiResponse<String> updateReview(
             @RequestHeader("X-User-UUID") String userUuid,
-            @PathVariable String reviewId,
+            @PathVariable String reviewUuid,
             @RequestBody ReviewUpdateRequestVo reviewUpdateRequestVo) {
 
         reviewFacade.updateReview(
-                ReviewUpdateRequestDto.of(reviewId, userUuid, reviewUpdateRequestVo)
+                ReviewUpdateRequestDto.of(reviewUuid, userUuid, reviewUpdateRequestVo)
         );
 
         return ApiResponse.of(
@@ -93,12 +93,12 @@ public class ReviewController {
             description = "리뷰 삭제 API 입니다. 실제로 삭제하지 않고 삭제 상태로 업데이트 합니다.",
             tags = {"REVIEW-SERVICE"}
     )
-    @PutMapping("/{reviewId}/softdelete")
+    @PutMapping("/{reviewUuid}/softdelete")
     public ApiResponse<Void> softDeleteReview(
-            @PathVariable String reviewId,
+            @PathVariable String reviewUuid,
             @RequestHeader("X-User-UUID") String userUuid) {
 
-        reviewFacade.softDeleteReview(reviewId, userUuid);
+        reviewService.softDeleteReview(reviewUuid, userUuid);
 
         return ApiResponse.of(
                 HttpStatus.OK,

@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    Optional<Review> findByReviewIdAndUserUuidAndStatus(String reviewId, String userUuid, ReviewStatus status);
+    Optional<Review> findByReviewUuidAndUserUuidAndStatus(String reviewUuid, String userUuid, ReviewStatus status);
 
-    Optional<Review> findByReviewIdAndStatus(String reviewId, ReviewStatus status);
+    Optional<Review> findByReviewUuidAndStatus(String reviewUuid, ReviewStatus status);
 }

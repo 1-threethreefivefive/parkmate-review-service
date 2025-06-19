@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewResponseVo {
 
-    private String reviewId;
+    private String reviewUuid;
     private String userUuid;
     private String parkingLotUuid;
     private String paymentKey;
@@ -19,7 +19,7 @@ public class ReviewResponseVo {
     private List<String> imageUrls;
 
     @Builder
-    private ReviewResponseVo(String reviewId,
+    private ReviewResponseVo(String reviewUuid,
                              String userUuid,
                              String parkingLotUuid,
                              String paymentKey,
@@ -27,7 +27,7 @@ public class ReviewResponseVo {
                              int rating,
                              List<String> imageUrls) {
 
-        this.reviewId = reviewId;
+        this.reviewUuid = reviewUuid;
         this.userUuid = userUuid;
         this.parkingLotUuid = parkingLotUuid;
         this.paymentKey = paymentKey;
@@ -39,7 +39,7 @@ public class ReviewResponseVo {
     public static ReviewResponseVo from(ReviewResponseDto reviewResponseDto) {
 
         return ReviewResponseVo.builder()
-                .reviewId(reviewResponseDto.getReviewId())
+                .reviewUuid(reviewResponseDto.getReviewUuid())
                 .userUuid(reviewResponseDto.getUserUuid())
                 .parkingLotUuid(reviewResponseDto.getParkingLotUuid())
                 .paymentKey(reviewResponseDto.getPaymentKey())

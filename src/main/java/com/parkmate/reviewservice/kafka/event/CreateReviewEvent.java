@@ -18,10 +18,6 @@ public class CreateReviewEvent {
     private String content;
     private int rating;
     private List<String> imageUrls;
-    private int likeCount;
-    private int dislikeCount;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
     @Builder
@@ -32,8 +28,6 @@ public class CreateReviewEvent {
             String content,
             int rating,
             List<String> imageUrls,
-            int likeCount,
-            int dislikeCount,
             LocalDateTime createdAt
     ) {
         this.reviewUuid = reviewUuid;
@@ -42,8 +36,6 @@ public class CreateReviewEvent {
         this.content = content;
         this.rating = rating;
         this.imageUrls = imageUrls;
-        this.likeCount = likeCount;
-        this.dislikeCount = dislikeCount;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 }

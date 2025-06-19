@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewImageMappingResponseDto {
 
-    private String reviewId;
+    private String reviewUuid;
     private String imageUrl;
     private String type;
 
     @Builder
-    private ReviewImageMappingResponseDto(String reviewId,
+    private ReviewImageMappingResponseDto(String reviewUuid,
                                           String imageUrl,
                                           String type) {
-        this.reviewId = reviewId;
+        this.reviewUuid = reviewUuid;
         this.imageUrl = imageUrl;
         this.type = type;
     }
@@ -25,7 +25,7 @@ public class ReviewImageMappingResponseDto {
     public static ReviewImageMappingResponseDto from(ReviewImageMapping reviewImageMapping) {
 
         return ReviewImageMappingResponseDto.builder()
-                .reviewId(reviewImageMapping.getReviewId())
+                .reviewUuid(reviewImageMapping.getReviewUuid())
                 .imageUrl(reviewImageMapping.getImageUrl())
                 .type(reviewImageMapping.getType())
                 .build();
