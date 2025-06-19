@@ -10,42 +10,28 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewResponseVo {
 
-    private String reviewId;
     private String userUuid;
-    private String parkingLotUuid;
-    private String paymentKey;
     private String content;
     private int rating;
-    private List<String> imageUrls;
+    private List<ImageUrlVo> imageUrls;
 
     @Builder
-    private ReviewResponseVo(String reviewId,
-                             String userUuid,
-                             String parkingLotUuid,
-                             String paymentKey,
+    private ReviewResponseVo(String userUuid,
                              String content,
                              int rating,
-                             List<String> imageUrls) {
-
-        this.reviewId = reviewId;
+                             List<ImageUrlVo> imageUrls) {
         this.userUuid = userUuid;
-        this.parkingLotUuid = parkingLotUuid;
-        this.paymentKey = paymentKey;
         this.content = content;
         this.rating = rating;
         this.imageUrls = imageUrls;
     }
 
-    public static ReviewResponseVo from(ReviewResponseDto reviewResponseDto) {
-
+    public static ReviewResponseVo from(ReviewResponseDto dto) {
         return ReviewResponseVo.builder()
-                .reviewId(reviewResponseDto.getReviewId())
-                .userUuid(reviewResponseDto.getUserUuid())
-                .parkingLotUuid(reviewResponseDto.getParkingLotUuid())
-                .paymentKey(reviewResponseDto.getPaymentKey())
-                .content(reviewResponseDto.getContent())
-                .rating(reviewResponseDto.getRating())
-                .imageUrls(reviewResponseDto.getImageUrls())
+                .userUuid(dto.getUserUuid())
+                .content(dto.getContent())
+                .rating(dto.getRating())
+                .imageUrls(ImageUrlVo.from(dto.getImageUrls()))
                 .build();
     }
 }

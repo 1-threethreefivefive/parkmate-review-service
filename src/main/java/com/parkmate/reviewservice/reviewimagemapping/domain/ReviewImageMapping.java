@@ -21,8 +21,8 @@ public class ReviewImageMapping extends BaseEntity {
     private Long id;
 
     @Comment("리뷰 ID (FK)")
-    @Column(name = "review_id", nullable = false)
-    private String reviewId;
+    @Column(name = "review_uuid", nullable = false)
+    private String reviewUuid;
 
     @Comment("이미지/동영상 URL")
     @Column(name = "image_url", nullable = false, length = 500)
@@ -46,12 +46,12 @@ public class ReviewImageMapping extends BaseEntity {
     private ReviewImageMappingStatus status;
 
     @Builder
-    private ReviewImageMapping(String reviewId,
+    private ReviewImageMapping(String reviewUuid,
                                String imageUrl,
                                String type,
                                Integer imageIndex) {
 
-        this.reviewId = reviewId;
+        this.reviewUuid = reviewUuid;
         this.imageUrl = imageUrl;
         this.type = type;
         this.imageIndex = imageIndex;

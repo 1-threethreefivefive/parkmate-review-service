@@ -19,31 +19,29 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void registerReviewImages(String reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
+    public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
 
         if (reviewImageRegisterRequestDtos == null || reviewImageRegisterRequestDtos.isEmpty()) {
             return;
         }
 
-        markAsDeletedByReviewId(reviewId);
+        markAsDeletedByReviewUuid(reviewUuid);
 
         List<ReviewImageMapping> reviewImageMappingList = new ArrayList<>();
-
         int imageIndexCounter = 0;
 
-        for (ReviewImageRegisterRequestDto reviewImageRegisterRequestDto : reviewImageRegisterRequestDtos) {
+        for (ReviewImageRegisterRequestDto dto : reviewImageRegisterRequestDtos) {
 
-            Integer imageIndex = "IMAGE".equals(reviewImageRegisterRequestDto.getType()) ? imageIndexCounter++ : null;
+            Integer imageIndex = "IMAGE".equals(dto.getType()) ? imageIndexCounter++ : null;
 
             ReviewImageMapping imageMapping = ReviewImageMapping.builder()
-                    .reviewId(reviewId)
-                    .imageUrl(reviewImageRegisterRequestDto.getImageUrl())
-                    .type(reviewImageRegisterRequestDto.getType())
+                    .reviewUuid(reviewUuid)
+                    .imageUrl(dto.getImageUrl())
+                    .type(dto.getType())
                     .imageIndex(imageIndex)
                     .build();
 
             imageMapping.markAsActive();
-
             reviewImageMappingList.add(imageMapping);
         }
 
@@ -56,9 +54,9 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional(readOnly = true)
     @Override
-    public List<String> getImageUrlsByReviewId(String reviewId) {
+    public List<String> getImageUrlsByReviewUuid(String reviewUuid) {
 
-        return reviewImageMappingRepository.findAllByReviewIdAndStatusOrderByImageIndex(reviewId, ReviewImageMappingStatus.ACTIVE)
+        return reviewImageMappingRepository.findAllByReviewUuidAndStatusOrderByImageIndex(reviewUuid, ReviewImageMappingStatus.ACTIVE)
                 .stream()
                 .map(ReviewImageMapping::getImageUrl)
                 .toList();
@@ -66,10 +64,8 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void markAsDeletedByReviewId(String reviewId) {
-
-        List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewId(reviewId);
-
+    public void markAsDeletedByReviewUuid(String reviewUuid) {
+        List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewUuid(reviewUuid);
         for (ReviewImageMapping image : images) {
             image.markAsDeleted();
         }

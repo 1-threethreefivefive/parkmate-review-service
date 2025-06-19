@@ -6,9 +6,9 @@ import java.util.List;
 
 public  interface  ReviewImageMappingService {
 
-    void registerReviewImages(String reviewId, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos);
+    void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos);
 
-    List<String> getImageUrlsByReviewId(String reviewId);
+    List<String> getImageUrlsByReviewUuid(String reviewUuid);
 
-    void markAsDeletedByReviewId(String reviewId);
+    void markAsDeletedByReviewUuid(String reviewUuid);
 }

@@ -22,7 +22,7 @@ public class Review extends BaseEntity {
 
     @Comment("리뷰 UUID - 외부 식별자")
     @Column(nullable = false, unique = true, length = 36)
-    private String reviewId;
+    private String reviewUuid;
 
     @Column(nullable = false, length = 36)
     @Comment("회원 UUID")
@@ -50,13 +50,13 @@ public class Review extends BaseEntity {
     private ReviewStatus status;
 
     @Builder
-    private Review(String reviewId,
+    private Review(String reviewUuid,
                    String userUuid,
                    String parkingLotUuid,
                    String content,
                    int rating) {
 
-        this.reviewId = reviewId;
+        this.reviewUuid = reviewUuid;
         this.userUuid = userUuid;
         this.parkingLotUuid = parkingLotUuid;
         this.content = content;
@@ -77,8 +77,8 @@ public class Review extends BaseEntity {
 
     @PrePersist
     protected void onPrePersist() {
-        if (this.reviewId == null) {
-            this.reviewId = java.util.UUID.randomUUID().toString();
+        if (this.reviewUuid == null) {
+            this.reviewUuid = java.util.UUID.randomUUID().toString();
         }
     }
     public boolean isActive() {
