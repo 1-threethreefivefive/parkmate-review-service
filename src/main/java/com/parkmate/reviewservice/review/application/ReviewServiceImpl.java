@@ -52,11 +52,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional(readOnly = true)
     @Override
-    public ReviewResponseDto findById(String reviewUuid) {
+    public Review findReviewByUuid(String reviewUuid) {
 
-        Review review = reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
+        return reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
+
                 .orElseThrow(() -> new BaseException(ResponseStatus.RESOURCE_NOT_FOUND));
-        return ReviewResponseDto.from(review, null);
     }
 
     @Transactional
@@ -67,7 +67,6 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewUpdateRequestDto.getReviewUuid(),
                 reviewUpdateRequestDto.getUserUuid(),
                 ReviewStatus.ACTIVE
-
         ).orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_FORBIDDEN));
 
         review.updateReview(
@@ -78,7 +77,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional(readOnly = true)
     @Override
-    public Review findActiveReviewByUser(String reviewUuid, String userUuid) {
+    public Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid) {
+
         Review review = reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
                 .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_NOT_FOUND));
 

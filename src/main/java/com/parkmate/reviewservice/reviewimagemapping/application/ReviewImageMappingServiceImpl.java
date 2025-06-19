@@ -20,7 +20,7 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> imageDtos) {
+    public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
 
         if (imageDtos == null || imageDtos.isEmpty()) return;
 
@@ -29,35 +29,25 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
                 .filter(dto -> dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty())
                 .toList();
 
-        // 2. 필터링 결과가 비어 있다면 저장하지 않음
-        if (validDtos.isEmpty()) return;
 
-        // 3. 유효성 검사
-        validateImageConstraints(validDtos);
+        markAsDeletedByReviewUuid(reviewUuid);
 
-        // 4. 매핑 정보 생성
-        List<ReviewImageMapping> mappingsToSave = new ArrayList<>();
+        List<ReviewImageMapping> reviewImageMappingList = new ArrayList<>();
         int imageIndexCounter = 0;
 
-        for (ReviewImageRegisterRequestDto dto : validDtos) {
-            MediaType type;
-            try {
-                type = MediaType.valueOf(dto.getType().toUpperCase());
-            } catch (IllegalArgumentException | NullPointerException e) {
-                continue; // 잘못된 enum 타입은 스킵
-            }
+        for (ReviewImageRegisterRequestDto dto : reviewImageRegisterRequestDtos) {
 
-            Integer imageIndex = (type == MediaType.IMAGE) ? imageIndexCounter++ : null;
+            Integer imageIndex = "IMAGE".equals(dto.getType()) ? imageIndexCounter++ : null;
 
-            ReviewImageMapping mapping = ReviewImageMapping.builder()
+            ReviewImageMapping imageMapping = ReviewImageMapping.builder()
                     .reviewUuid(reviewUuid)
-                    .imageUrl(dto.getImageUrl().trim())
-                    .type(type.name())
+                    .imageUrl(dto.getImageUrl())
+                    .type(dto.getType())
                     .imageIndex(imageIndex)
                     .build();
 
-            mapping.markAsActive();
-            mappingsToSave.add(mapping);
+            imageMapping.markAsActive();
+            reviewImageMappingList.add(imageMapping);
         }
 
         if (!mappingsToSave.isEmpty()) {
@@ -67,23 +57,20 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void validateImageConstraints(List<ReviewImageRegisterRequestDto> imageDtos) {
-        if (imageDtos == null || imageDtos.isEmpty()) return;
+    public List<String> getImageUrlsByReviewUuid(String reviewUuid) {
 
-        long imageCount = imageDtos.stream()
-                .filter(dto -> "IMAGE".equalsIgnoreCase(dto.getType()))
-                .count();
+        return reviewImageMappingRepository.findAllByReviewUuidAndStatusOrderByImageIndex(reviewUuid, ReviewImageMappingStatus.ACTIVE)
+                .stream()
+                .map(ReviewImageMapping::getImageUrl)
+                .toList();
+    }
 
-        long videoCount = imageDtos.stream()
-                .filter(dto -> "VIDEO".equalsIgnoreCase(dto.getType()))
-                .count();
-
-        if (imageCount > 5) {
-            throw new BaseException(ResponseStatus.REVIEW_IMAGE_LIMIT_EXCEEDED);
-        }
-
-        if (videoCount > 1) {
-            throw new BaseException(ResponseStatus.REVIEW_VIDEO_LIMIT_EXCEEDED);
+    @Transactional
+    @Override
+    public void markAsDeletedByReviewUuid(String reviewUuid) {
+        List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewUuid(reviewUuid);
+        for (ReviewImageMapping image : images) {
+            image.markAsDeleted();
         }
     }
 

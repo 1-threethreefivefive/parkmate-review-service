@@ -56,7 +56,8 @@ public class ReviewController {
     public ApiResponse<ReviewResponseVo> getReview(
             @PathVariable String reviewUuid) {
 
-        ReviewResponseDto dto = reviewService.findById(reviewUuid);
+        ReviewResponseDto dto = reviewFacade.getReviewWithImages(reviewUuid);
+
 
         ReviewResponseVo responseVo = ReviewResponseVo.from(dto);
 
@@ -98,7 +99,7 @@ public class ReviewController {
             @PathVariable String reviewUuid,
             @RequestHeader("X-User-UUID") String userUuid) {
 
-        reviewService.softDeleteReview(reviewUuid, userUuid);
+        reviewFacade.softDeleteReview(reviewUuid, userUuid);
 
         return ApiResponse.of(
                 HttpStatus.OK,

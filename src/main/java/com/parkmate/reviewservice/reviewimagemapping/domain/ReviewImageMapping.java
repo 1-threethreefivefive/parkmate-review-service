@@ -21,7 +21,7 @@ public class ReviewImageMapping extends BaseEntity {
     private Long id;
 
     @Comment("리뷰 ID (FK)")
-    @Column(name = "review_id", nullable = false)
+    @Column(name = "review_uuid", nullable = false)
     private String reviewUuid;
 
     @Comment("이미지/동영상 URL")
