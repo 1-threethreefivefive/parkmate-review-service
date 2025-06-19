@@ -11,31 +11,31 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewUpdateRequestDto {
 
-    private String reviewId;
+    private String reviewUuid;
     private String userUuid;
     private int rating;
     private String content;
     private List<ReviewImageRegisterRequestDto> imageMappings;
 
     @Builder
-    private ReviewUpdateRequestDto(String reviewId,
+    private ReviewUpdateRequestDto(String reviewUuid,
                                    String userUuid,
                                    int  rating,
                                    String content,
                                    List<ReviewImageRegisterRequestDto> imageMappings) {
-        this.reviewId = reviewId;
+        this.reviewUuid = reviewUuid;
         this.userUuid = userUuid;
         this.rating = rating;
         this.content = content;
         this.imageMappings = imageMappings;
     }
 
-    public static ReviewUpdateRequestDto of(String reviewId,
+    public static ReviewUpdateRequestDto of(String reviewUuid,
                                             String userUuid,
                                             ReviewUpdateRequestVo reviewUpdateRequestVo) {
 
         return ReviewUpdateRequestDto.builder()
-                .reviewId(reviewId)
+                .reviewUuid(reviewUuid)
                 .userUuid(userUuid)
                 .rating(reviewUpdateRequestVo.getRating())
                 .content(reviewUpdateRequestVo.getContent())

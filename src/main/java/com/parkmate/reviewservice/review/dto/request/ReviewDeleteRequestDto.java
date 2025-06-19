@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewDeleteRequestDto {
 
-    private String reviewId;
+    private String reviewUuid;
     private String userUuid;
 
     @Builder
-    private ReviewDeleteRequestDto(String reviewId, String userUuid) {
-        this.reviewId = reviewId;
+    private ReviewDeleteRequestDto(String reviewUuid, String userUuid) {
+        this.reviewUuid = reviewUuid;
         this.userUuid = userUuid;
     }
 }

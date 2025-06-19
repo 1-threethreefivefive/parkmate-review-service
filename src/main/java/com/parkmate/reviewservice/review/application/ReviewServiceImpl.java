@@ -52,22 +52,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional(readOnly = true)
     @Override
-    public ReviewResponseDto findById(String reviewId) {
+    public Review findReviewByUuid(String reviewUuid) {
 
-        Review review = reviewRepository.findByReviewIdAndStatus(reviewId, ReviewStatus.ACTIVE)
+        return reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
                 .orElseThrow(() -> new BaseException(ResponseStatus.RESOURCE_NOT_FOUND));
-        return ReviewResponseDto.from(review, null);
     }
 
     @Transactional
     @Override
     public void update(ReviewUpdateRequestDto reviewUpdateRequestDto) {
-
-        Review review = reviewRepository.findByReviewIdAndUserUuidAndStatus(
-                reviewUpdateRequestDto.getReviewId(),
+        Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(
+                reviewUpdateRequestDto.getReviewUuid(),
                 reviewUpdateRequestDto.getUserUuid(),
                 ReviewStatus.ACTIVE
-
         ).orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_FORBIDDEN));
 
         review.updateReview(
@@ -78,8 +75,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional(readOnly = true)
     @Override
-    public Review findActiveReviewByUser(String reviewId, String userUuid) {
-        Review review = reviewRepository.findByReviewIdAndStatus(reviewId, ReviewStatus.ACTIVE)
+    public Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid) {
+        Review review = reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
                 .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_NOT_FOUND));
 
         if (!review.getUserUuid().equals(userUuid)) {
