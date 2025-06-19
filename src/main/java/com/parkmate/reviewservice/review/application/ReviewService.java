@@ -14,4 +14,5 @@ public interface ReviewService {
     Review findReviewByUuid(String reviewUuid);
 
     Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid);
+
 }

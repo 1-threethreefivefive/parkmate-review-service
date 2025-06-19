@@ -1,9 +1,10 @@
 package com.parkmate.reviewservice.reviewimagemapping.application;
 
+import com.parkmate.reviewservice.common.exception.BaseException;
+import com.parkmate.reviewservice.common.response.ResponseStatus;
 import com.parkmate.reviewservice.reviewimagemapping.domain.ReviewImageMapping;
-import com.parkmate.reviewservice.reviewimagemapping.domain.ReviewImageMappingStatus;
+import com.parkmate.reviewservice.reviewimagemapping.domain.type.MediaType;
 import com.parkmate.reviewservice.reviewimagemapping.dto.request.ReviewImageRegisterRequestDto;
-import com.parkmate.reviewservice.reviewimagemapping.dto.response.ReviewImageMappingResponseDto;
 import com.parkmate.reviewservice.reviewimagemapping.infrastructure.ReviewImageMappingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,13 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
     @Override
     public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
 
-        if (reviewImageRegisterRequestDtos == null || reviewImageRegisterRequestDtos.isEmpty()) {
-            return;
-        }
+        if (imageDtos == null || imageDtos.isEmpty()) return;
+
+        // 1. imageUrl이 null이거나 빈 문자열인 경우는 필터링
+        List<ReviewImageRegisterRequestDto> validDtos = imageDtos.stream()
+                .filter(dto -> dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty())
+                .toList();
+
 
         markAsDeletedByReviewUuid(reviewUuid);
 
@@ -45,14 +50,12 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
             reviewImageMappingList.add(imageMapping);
         }
 
-        List<ReviewImageMapping> savedMappings = reviewImageMappingRepository.saveAll(reviewImageMappingList);
-
-        savedMappings.stream()
-                .map(ReviewImageMappingResponseDto::from)
-                .toList();
+        if (!mappingsToSave.isEmpty()) {
+            reviewImageMappingRepository.saveAll(mappingsToSave);
+        }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<String> getImageUrlsByReviewUuid(String reviewUuid) {
 
@@ -69,5 +72,12 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
         for (ReviewImageMapping image : images) {
             image.markAsDeleted();
         }
+    }
+
+    @Transactional
+    @Override
+    public void markAsDeletedByReviewId(String reviewUuid) {
+        List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewUuid(reviewUuid);
+        images.forEach(ReviewImageMapping::markAsDeleted);
     }
 }

@@ -10,16 +10,19 @@ import java.util.List;
 @NoArgsConstructor
 public class ReviewResponseVo {
 
+    private String reviewUuid;
+
     private String userUuid;
     private String content;
     private int rating;
     private List<ImageUrlVo> imageUrls;
 
-    @Builder
+    @Builder=
     private ReviewResponseVo(String userUuid,
                              String content,
                              int rating,
                              List<ImageUrlVo> imageUrls) {
+      
         this.userUuid = userUuid;
         this.content = content;
         this.rating = rating;
@@ -28,6 +31,7 @@ public class ReviewResponseVo {
 
     public static ReviewResponseVo from(ReviewResponseDto dto) {
         return ReviewResponseVo.builder()
+
                 .userUuid(dto.getUserUuid())
                 .content(dto.getContent())
                 .rating(dto.getRating())

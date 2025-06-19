@@ -1,16 +1,12 @@
 package com.parkmate.reviewservice.facade;
 
-import com.parkmate.reviewservice.common.exception.BaseException;
-import com.parkmate.reviewservice.common.response.ResponseStatus;
 import com.parkmate.reviewservice.facade.dto.ReviewRegisterRequest;
 import com.parkmate.reviewservice.review.application.ReviewService;
 import com.parkmate.reviewservice.review.domain.Review;
-import com.parkmate.reviewservice.review.domain.ReviewStatus;
 import com.parkmate.reviewservice.review.dto.request.ReviewUpdateRequestDto;
 import com.parkmate.reviewservice.review.dto.response.ReviewResponseDto;
 import com.parkmate.reviewservice.review.infrastructure.ReviewRepository;
 import com.parkmate.reviewservice.reviewimagemapping.application.ReviewImageMappingService;
-import com.parkmate.reviewservice.reviewimagemapping.domain.type.MediaType;
 import com.parkmate.reviewservice.reviewimagemapping.dto.request.ReviewImageRegisterRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,14 +23,12 @@ public class ReviewFacade {
 
     @Transactional
     public void registerReview(ReviewRegisterRequest reviewRegisterRequest) {
+        Review review = reviewService.register(reviewRegisterRequest.getReview());
 
         List<ReviewImageRegisterRequestDto> imageMappings = reviewRegisterRequest.getImageMappings();
 
-        validateImageConstraints(imageMappings);
-
-        Review review = reviewService.register(reviewRegisterRequest.getReview());
-
         if (imageMappings != null && !imageMappings.isEmpty()) {
+
             reviewImageMappingService.registerReviewImages(review.getReviewUuid(), imageMappings);
         }
     }
@@ -81,21 +75,19 @@ public class ReviewFacade {
         // 기존 이미지 전부 soft delete
         reviewImageMappingService.markAsDeletedByReviewUuid(reviewUpdateRequestDto.getReviewUuid());
 
-        // 새 이미지가 있다면 등록
+
         if (imageMappings != null && !imageMappings.isEmpty()) {
             reviewImageMappingService.registerReviewImages(reviewUpdateRequestDto.getReviewUuid(), imageMappings);
         }
     }
 
-    /**
-     * 리뷰 논리 삭제
-     */
     @Transactional
     public void softDeleteReview(String reviewUuid, String userUuid) {
 
         Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(reviewUuid, userUuid, ReviewStatus.ACTIVE)
                 .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_ALREADY_DELETED));
 
-        review.markAsDeleted();
+
+        reviewService.softDeleteReview(reviewUuid, userUuid);
     }
 }

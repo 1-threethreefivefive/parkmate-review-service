@@ -58,6 +58,7 @@ public class ReviewController {
 
         ReviewResponseDto dto = reviewFacade.getReviewWithImages(reviewUuid);
 
+
         ReviewResponseVo responseVo = ReviewResponseVo.from(dto);
 
         return ApiResponse.of(

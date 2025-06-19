@@ -55,12 +55,14 @@ public class ReviewServiceImpl implements ReviewService {
     public Review findReviewByUuid(String reviewUuid) {
 
         return reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
+
                 .orElseThrow(() -> new BaseException(ResponseStatus.RESOURCE_NOT_FOUND));
     }
 
     @Transactional
     @Override
     public void update(ReviewUpdateRequestDto reviewUpdateRequestDto) {
+
         Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(
                 reviewUpdateRequestDto.getReviewUuid(),
                 reviewUpdateRequestDto.getUserUuid(),
@@ -76,6 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid) {
+
         Review review = reviewRepository.findByReviewUuidAndStatus(reviewUuid, ReviewStatus.ACTIVE)
                 .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_NOT_FOUND));
 
@@ -83,5 +86,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BaseException(ResponseStatus.REVIEW_FORBIDDEN);
         }
         return review;
+    }
+
+    @Transactional
+    public void softDeleteReview(String reviewUuid, String userUuid) {
+        Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(reviewUuid, userUuid, ReviewStatus.ACTIVE)
+                .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_ALREADY_DELETED));
+
+        review.markAsDeleted();
     }
 }
