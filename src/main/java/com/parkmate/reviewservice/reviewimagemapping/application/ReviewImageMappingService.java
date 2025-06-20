@@ -8,7 +8,6 @@ public  interface  ReviewImageMappingService {
 
     void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos);
 
-
     List<String> getImageUrlsByReviewUuid(String reviewUuid);
 
     void markAsDeletedByReviewUuid(String reviewUuid);

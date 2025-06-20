@@ -1,8 +1,13 @@
 package com.parkmate.reviewservice.facade;
 
+import com.parkmate.reviewservice.common.exception.BaseException;
+import com.parkmate.reviewservice.common.response.ResponseStatus;
 import com.parkmate.reviewservice.facade.dto.ReviewRegisterRequest;
+import com.parkmate.reviewservice.kafka.event.CreateReviewEvent;
+import com.parkmate.reviewservice.kafka.producer.ReviewProducer;
 import com.parkmate.reviewservice.review.application.ReviewService;
 import com.parkmate.reviewservice.review.domain.Review;
+import com.parkmate.reviewservice.review.domain.ReviewStatus;
 import com.parkmate.reviewservice.review.dto.request.ReviewUpdateRequestDto;
 import com.parkmate.reviewservice.review.dto.response.ReviewResponseDto;
 import com.parkmate.reviewservice.review.infrastructure.ReviewRepository;
@@ -20,17 +25,35 @@ public class ReviewFacade {
     private final ReviewService reviewService;
     private final ReviewImageMappingService reviewImageMappingService;
     private final ReviewRepository reviewRepository;
+    private final ReviewProducer reviewProducer;
 
     @Transactional
     public void registerReview(ReviewRegisterRequest reviewRegisterRequest) {
+        // 1. 리뷰 등록
         Review review = reviewService.register(reviewRegisterRequest.getReview());
 
+        // 2. 이미지 등록 (존재할 경우)
         List<ReviewImageRegisterRequestDto> imageMappings = reviewRegisterRequest.getImageMappings();
-
         if (imageMappings != null && !imageMappings.isEmpty()) {
-
             reviewImageMappingService.registerReviewImages(review.getReviewUuid(), imageMappings);
         }
+
+        // 3. Kafka 이벤트 발행
+        CreateReviewEvent event = CreateReviewEvent.builder()
+                .reviewUuid(review.getReviewUuid())
+                .userUuid(review.getUserUuid())
+                .parkingLotUuid(review.getParkingLotUuid())
+                .content(review.getContent())
+                .rating(review.getRating())
+                .imageUrls(imageMappings == null
+                        ? List.of()
+                        : imageMappings.stream()
+                        .map(ReviewImageRegisterRequestDto::getImageUrl)
+                        .toList()
+                )
+                .build();
+
+        reviewProducer.sendCreateReviewEvent(event);
     }
 
     @Transactional(readOnly = true)
@@ -40,29 +63,6 @@ public class ReviewFacade {
         List<String> imageUrls = reviewImageMappingService.getImageUrlsByReviewUuid(reviewUuid);
 
         return ReviewResponseDto.from(review, imageUrls);
-    }
-
-    /**
-     * 이미지 등록 조건 검증
-     */
-    private void validateImageConstraints(List<ReviewImageRegisterRequestDto> imageMappings) {
-        if (imageMappings == null || imageMappings.isEmpty()) return;
-
-        long imageCount = imageMappings.stream()
-                .filter(dto -> MediaType.IMAGE.name().equals(dto.getType()))
-                .count();
-
-        long videoCount = imageMappings.stream()
-                .filter(dto -> MediaType.VIDEO.name().equals(dto.getType()))
-                .count();
-
-        if (imageCount > 5) {
-            throw new BaseException(ResponseStatus.REVIEW_IMAGE_LIMIT_EXCEEDED);
-        }
-
-        if (videoCount > 1) {
-            throw new BaseException(ResponseStatus.REVIEW_VIDEO_LIMIT_EXCEEDED);
-        }
     }
 
     @Transactional

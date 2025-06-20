@@ -1,0 +1,41 @@
+package com.parkmate.reviewservice.kafka.producer;
+
+import com.parkmate.reviewservice.kafka.constant.KafkaTopics;
+import com.parkmate.reviewservice.kafka.event.CreateReviewEvent;
+import com.parkmate.reviewservice.kafka.event.ReactionUpdatedEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ReviewProducer {
+
+    private final KafkaTemplate<String, CreateReviewEvent> createReviewKafkaTemplate;
+    private final KafkaTemplate<String, ReactionUpdatedEvent> reviewReactionKafkaTemplate;
+
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendCreateReviewEvent(CreateReviewEvent event) {
+        createReviewKafkaTemplate.send(
+                KafkaTopics.REVIEW_CREATED,
+                event.getReviewUuid(),
+                event
+        );
+        log.info("[Kafka] Sent CreateReviewEvent to topic '{}': {}", KafkaTopics.REVIEW_CREATED, event);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendReviewReactionUpdatedEvent(ReactionUpdatedEvent event) {
+        reviewReactionKafkaTemplate.send(
+                KafkaTopics.REVIEW_REACTION_UPDATED,
+                event.getReviewUuid(),
+                event
+        );
+        log.info("[Kafka] Sent ReactionUpdatedEvent to topic '{}': {}", KafkaTopics.REVIEW_REACTION_UPDATED, event);
+    }
+}
