@@ -3,6 +3,7 @@ package com.parkmate.reviewservice.reviewimagemapping.application;
 import com.parkmate.reviewservice.common.exception.BaseException;
 import com.parkmate.reviewservice.common.response.ResponseStatus;
 import com.parkmate.reviewservice.reviewimagemapping.domain.ReviewImageMapping;
+import com.parkmate.reviewservice.reviewimagemapping.domain.ReviewImageMappingStatus;
 import com.parkmate.reviewservice.reviewimagemapping.domain.type.MediaType;
 import com.parkmate.reviewservice.reviewimagemapping.dto.request.ReviewImageRegisterRequestDto;
 import com.parkmate.reviewservice.reviewimagemapping.infrastructure.ReviewImageMappingRepository;
@@ -20,38 +21,55 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
 
     @Transactional
     @Override
-    public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> reviewImageRegisterRequestDtos) {
+    public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> imageDtos) {
 
         if (imageDtos == null || imageDtos.isEmpty()) return;
 
-        // 1. imageUrl이 null이거나 빈 문자열인 경우는 필터링
+        validateImageConstraints(imageDtos);
+
         List<ReviewImageRegisterRequestDto> validDtos = imageDtos.stream()
                 .filter(dto -> dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty())
                 .toList();
 
-
         markAsDeletedByReviewUuid(reviewUuid);
 
-        List<ReviewImageMapping> reviewImageMappingList = new ArrayList<>();
+        List<ReviewImageMapping> mappingsToSave = new ArrayList<>();
         int imageIndexCounter = 0;
 
-        for (ReviewImageRegisterRequestDto dto : reviewImageRegisterRequestDtos) {
+        for (ReviewImageRegisterRequestDto dto : validDtos) {
+            Integer imageIndex = MediaType.IMAGE.name().equals(dto.getType()) ? imageIndexCounter++ : null;
 
-            Integer imageIndex = "IMAGE".equals(dto.getType()) ? imageIndexCounter++ : null;
-
-            ReviewImageMapping imageMapping = ReviewImageMapping.builder()
+            ReviewImageMapping mapping = ReviewImageMapping.builder()
                     .reviewUuid(reviewUuid)
                     .imageUrl(dto.getImageUrl())
                     .type(dto.getType())
                     .imageIndex(imageIndex)
                     .build();
 
-            imageMapping.markAsActive();
-            reviewImageMappingList.add(imageMapping);
+            mapping.markAsActive();
+            mappingsToSave.add(mapping);
         }
 
         if (!mappingsToSave.isEmpty()) {
             reviewImageMappingRepository.saveAll(mappingsToSave);
+        }
+    }
+
+    private void validateImageConstraints(List<ReviewImageRegisterRequestDto> imageMappings) {
+        long imageCount = imageMappings.stream()
+                .filter(dto -> MediaType.IMAGE.name().equals(dto.getType()))
+                .count();
+
+        long videoCount = imageMappings.stream()
+                .filter(dto -> MediaType.VIDEO.name().equals(dto.getType()))
+                .count();
+
+        if (imageCount > 5) {
+            throw new BaseException(ResponseStatus.REVIEW_IMAGE_LIMIT_EXCEEDED);
+        }
+
+        if (videoCount > 1) {
+            throw new BaseException(ResponseStatus.REVIEW_VIDEO_LIMIT_EXCEEDED);
         }
     }
 
@@ -68,15 +86,6 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
     @Transactional
     @Override
     public void markAsDeletedByReviewUuid(String reviewUuid) {
-        List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewUuid(reviewUuid);
-        for (ReviewImageMapping image : images) {
-            image.markAsDeleted();
-        }
-    }
-
-    @Transactional
-    @Override
-    public void markAsDeletedByReviewId(String reviewUuid) {
         List<ReviewImageMapping> images = reviewImageMappingRepository.findAllByReviewUuid(reviewUuid);
         images.forEach(ReviewImageMapping::markAsDeleted);
     }

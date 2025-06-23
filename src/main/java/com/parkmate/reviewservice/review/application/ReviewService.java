@@ -15,4 +15,5 @@ public interface ReviewService {
 
     Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid);
 
+    void softDeleteReview(String reviewUuid, String userUuid);
 }

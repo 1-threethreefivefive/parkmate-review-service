@@ -17,7 +17,7 @@ public class ReviewResponseVo {
     private int rating;
     private List<ImageUrlVo> imageUrls;
 
-    @Builder=
+    @Builder
     private ReviewResponseVo(String userUuid,
                              String content,
                              int rating,
