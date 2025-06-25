@@ -3,6 +3,8 @@ package com.parkmate.reviewservice.common.exception;
 import com.parkmate.reviewservice.common.response.ApiResponse;
 import com.parkmate.reviewservice.common.response.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -10,21 +12,36 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class BaseExceptionHandler {
-    /**
-     * 발생한 예외 처리
-     */
+
     @ExceptionHandler(BaseException.class)
-    protected ApiResponse<Void> BaseError(BaseException e) {
-        log.error("BaseException -> {} ({})", e.getStatus(), e.getMessage());
-        return ApiResponse.error(e.getStatus());
+    protected ResponseEntity<ApiResponse<Object>> BaseError(BaseException e) {
+
+        HttpStatus status = e.getStatus().getHttpStatus();
+
+        if (ResponseStatus.RESOURCE_NOT_FOUND.equals(e.getStatus())) {
+            return new ResponseEntity<>(
+                    ApiResponse.error(e.getStatus()),
+                    HttpStatus.OK
+            );
+        }
+
+        return new ResponseEntity<>(
+                ApiResponse.error(e.getStatus()),
+                status
+        );
     }
 
     @ExceptionHandler(RuntimeException.class)
-    protected ApiResponse<Void> RuntimeError(RuntimeException e) {
-        log.error("RuntimeException: ", e);
+    protected ResponseEntity<ApiResponse<Object>> RuntimeError(RuntimeException e) {
+
+        BaseException response = new BaseException(ResponseStatus.INTERNAL_SERVER_ERROR);
         for (StackTraceElement s : e.getStackTrace()) {
             System.out.println(s);
         }
-        return ApiResponse.error(ResponseStatus.INTERNAL_SERVER_ERROR);
+
+        return new ResponseEntity<>(
+                ApiResponse.error(response.getStatus()),
+                response.getStatus().getHttpStatus()
+        );
     }
 }
