@@ -4,6 +4,8 @@ import com.parkmate.reviewservice.common.exception.BaseException;
 import com.parkmate.reviewservice.common.response.ResponseStatus;
 import com.parkmate.reviewservice.facade.dto.ReviewRegisterRequest;
 import com.parkmate.reviewservice.kafka.event.CreateReviewEvent;
+import com.parkmate.reviewservice.kafka.event.ReviewDeletedEvent;
+import com.parkmate.reviewservice.kafka.event.ReviewUpdatedEvent;
 import com.parkmate.reviewservice.kafka.producer.ReviewProducer;
 import com.parkmate.reviewservice.review.application.ReviewService;
 import com.parkmate.reviewservice.review.domain.Review;
@@ -29,16 +31,14 @@ public class ReviewFacade {
 
     @Transactional
     public void registerReview(ReviewRegisterRequest reviewRegisterRequest) {
-        // 1. 리뷰 등록
+
         Review review = reviewService.register(reviewRegisterRequest.getReview());
 
-        // 2. 이미지 등록 (존재할 경우)
         List<ReviewImageRegisterRequestDto> imageMappings = reviewRegisterRequest.getImageMappings();
         if (imageMappings != null && !imageMappings.isEmpty()) {
             reviewImageMappingService.registerReviewImages(review.getReviewUuid(), imageMappings);
         }
 
-        // 3. Kafka 이벤트 발행
         CreateReviewEvent event = CreateReviewEvent.builder()
                 .reviewUuid(review.getReviewUuid())
                 .userUuid(review.getUserUuid())
@@ -71,23 +71,40 @@ public class ReviewFacade {
         reviewService.update(reviewUpdateRequestDto);
 
         List<ReviewImageRegisterRequestDto> imageMappings = reviewUpdateRequestDto.getImageMappings();
-
-        // 기존 이미지 전부 soft delete
         reviewImageMappingService.markAsDeletedByReviewUuid(reviewUpdateRequestDto.getReviewUuid());
-
 
         if (imageMappings != null && !imageMappings.isEmpty()) {
             reviewImageMappingService.registerReviewImages(reviewUpdateRequestDto.getReviewUuid(), imageMappings);
         }
+
+        Review updatedReview = reviewService.findReviewByUuid(reviewUpdateRequestDto.getReviewUuid());
+        List<String> imageUrls = reviewImageMappingService.getImageUrlsByReviewUuid(reviewUpdateRequestDto.getReviewUuid());
+
+        ReviewUpdatedEvent event = ReviewUpdatedEvent.builder()
+                .reviewUuid(updatedReview.getReviewUuid())
+                .content(updatedReview.getContent())
+                .rating(updatedReview.getRating())
+                .imageUrls(imageUrls)
+                .updatedAt(updatedReview.getUpdatedAt())
+                .build();
+
+        reviewProducer.sendReviewUpdatedEvent(event);
     }
 
     @Transactional
     public void softDeleteReview(String reviewUuid, String userUuid) {
 
-        Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(reviewUuid, userUuid, ReviewStatus.ACTIVE)
-                .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_ALREADY_DELETED));
+        Review review = reviewRepository.findByReviewUuidAndUserUuidAndStatus(
+                reviewUuid, userUuid, ReviewStatus.ACTIVE
+        ).orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_ALREADY_DELETED));
 
+        review.markAsDeleted();
 
-        reviewService.softDeleteReview(reviewUuid, userUuid);
+        ReviewDeletedEvent event = ReviewDeletedEvent.builder()
+                .reviewUuid(review.getReviewUuid())
+                .deletedAt(review.getUpdatedAt())
+                .build();
+
+        reviewProducer.sendReviewDeletedEvent(event);
     }
 }

@@ -2,6 +2,8 @@ package com.parkmate.reviewservice.kafka.config;
 
 import com.parkmate.reviewservice.kafka.event.CreateReviewEvent;
 import com.parkmate.reviewservice.kafka.event.ReactionUpdatedEvent;
+import com.parkmate.reviewservice.kafka.event.ReviewDeletedEvent;
+import com.parkmate.reviewservice.kafka.event.ReviewUpdatedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,5 +49,25 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, ReactionUpdatedEvent> reviewReactionKafkaTemplate() {
         return new KafkaTemplate<>(reactionUpdatedProducerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, ReviewUpdatedEvent> reviewUpdatedProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(commonProducerConfigs());
+    }
+
+    @Bean
+    public KafkaTemplate<String, ReviewUpdatedEvent> reviewUpdatedKafkaTemplate() {
+        return new KafkaTemplate<>(reviewUpdatedProducerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, ReviewDeletedEvent> reviewDeletedProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(commonProducerConfigs());
+    }
+
+    @Bean
+    public KafkaTemplate<String, ReviewDeletedEvent> reviewDeletedKafkaTemplate() {
+        return new KafkaTemplate<>(reviewDeletedProducerFactory());
     }
 }

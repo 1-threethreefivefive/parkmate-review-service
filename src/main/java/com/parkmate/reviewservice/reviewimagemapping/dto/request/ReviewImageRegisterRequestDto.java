@@ -11,15 +11,13 @@ public class ReviewImageRegisterRequestDto {
     private String reviewUuid;
     private String imageUrl;
     private String type;
-    private Integer imageIndex;
 
     @Builder
     private ReviewImageRegisterRequestDto(String reviewUuid,
                                           String imageUrl,
-                                          String type,Integer imageIndex) {
+                                          String type) {
         this.reviewUuid = reviewUuid;
         this.imageUrl = imageUrl;
         this.type = type;
-        this.imageIndex = imageIndex;
     }
 }
