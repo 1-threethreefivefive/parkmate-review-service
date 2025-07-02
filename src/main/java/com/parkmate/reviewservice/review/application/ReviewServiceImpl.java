@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
@@ -94,5 +96,10 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new BaseException(ResponseStatus.REVIEW_ALREADY_DELETED));
 
         review.markAsDeleted();
+    }
+
+    @Override
+    public Optional<Review> findByPaymentCode(String paymentCode) {
+        return reviewRepository.findByPaymentCode(paymentCode);
     }
 }

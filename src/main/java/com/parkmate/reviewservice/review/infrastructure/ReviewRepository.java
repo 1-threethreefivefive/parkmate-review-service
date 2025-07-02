@@ -12,4 +12,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findByReviewUuidAndUserUuidAndStatus(String reviewUuid, String userUuid, ReviewStatus status);
 
     Optional<Review> findByReviewUuidAndStatus(String reviewUuid, ReviewStatus status);
+
+    Optional<Review> findByPaymentCode(String paymentCode);
 }

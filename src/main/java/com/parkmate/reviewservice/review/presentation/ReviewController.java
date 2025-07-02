@@ -6,6 +6,7 @@ import com.parkmate.reviewservice.facade.dto.ReviewRegisterRequest;
 import com.parkmate.reviewservice.review.application.ReviewService;
 import com.parkmate.reviewservice.review.dto.request.ReviewRegisterRequestDto;
 import com.parkmate.reviewservice.review.dto.request.ReviewUpdateRequestDto;
+import com.parkmate.reviewservice.review.dto.response.ReviewExistenceResponseDto;
 import com.parkmate.reviewservice.review.dto.response.ReviewResponseDto;
 import com.parkmate.reviewservice.review.vo.request.ReviewRegisterRequestVo;
 import com.parkmate.reviewservice.review.vo.request.ReviewUpdateRequestVo;
@@ -106,5 +107,26 @@ public class ReviewController {
                 "리뷰가 삭제(Soft Delete) 처리되었습니다.",
                 null
         );
+    }
+
+    @Operation(
+            summary = "결제 코드로 리뷰 존재 여부 확인",
+            description = "결제 코드를 통해 리뷰가 존재하면 reviewUuid를 반환합니다.",
+            tags = {"REVIEW-SERVICE"}
+    )
+    @GetMapping
+    public ApiResponse<ReviewExistenceResponseDto> checkReviewExistence(@RequestParam String paymentCode) {
+
+        return reviewService.findByPaymentCode(paymentCode)
+                .map(review -> ApiResponse.of(
+                        HttpStatus.OK,
+                        "리뷰가 존재합니다.",
+                        ReviewExistenceResponseDto.from(review.getReviewUuid())
+                ))
+                .orElse(ApiResponse.of(
+                        HttpStatus.NOT_FOUND,
+                        "리뷰가 존재하지 않습니다.",
+                        null
+                ));
     }
 }
