@@ -5,6 +5,8 @@ import com.parkmate.reviewservice.review.dto.request.ReviewRegisterRequestDto;
 import com.parkmate.reviewservice.review.dto.request.ReviewUpdateRequestDto;
 import com.parkmate.reviewservice.review.dto.response.ReviewResponseDto;
 
+import java.util.Optional;
+
 public interface ReviewService {
 
     Review register(ReviewRegisterRequestDto requestDto);
@@ -16,4 +18,6 @@ public interface ReviewService {
     Review findActiveReviewByReviewUuidAndUserUuid(String reviewUuid, String userUuid);
 
     void softDeleteReview(String reviewUuid, String userUuid);
+
+    Optional<Review> findByPaymentCode(String paymentCode);
 }
