@@ -22,7 +22,6 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
     @Transactional
     @Override
     public void registerReviewImages(String reviewUuid, List<ReviewImageRegisterRequestDto> imageDtos) {
-
         if (imageDtos == null || imageDtos.isEmpty()) return;
 
         validateImageConstraints(imageDtos);
@@ -31,19 +30,14 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
                 .filter(dto -> dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty())
                 .toList();
 
-        markAsDeletedByReviewUuid(reviewUuid);
+        markAsDeletedByReviewUuid(reviewUuid); // 기존 이미지 삭제 처리
 
         List<ReviewImageMapping> mappingsToSave = new ArrayList<>();
-        int imageIndexCounter = 0;
-
         for (ReviewImageRegisterRequestDto dto : validDtos) {
-            Integer imageIndex = MediaType.IMAGE.name().equals(dto.getType()) ? imageIndexCounter++ : null;
-
             ReviewImageMapping mapping = ReviewImageMapping.builder()
                     .reviewUuid(reviewUuid)
                     .imageUrl(dto.getImageUrl())
                     .type(dto.getType())
-                    .imageIndex(imageIndex)
                     .build();
 
             mapping.markAsActive();
@@ -73,11 +67,10 @@ public class ReviewImageMappingServiceImpl implements ReviewImageMappingService 
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<String> getImageUrlsByReviewUuid(String reviewUuid) {
-
-        return reviewImageMappingRepository.findAllByReviewUuidAndStatusOrderByImageIndex(reviewUuid, ReviewImageMappingStatus.ACTIVE)
+        return reviewImageMappingRepository.findAllByReviewUuidAndStatus(reviewUuid, ReviewImageMappingStatus.ACTIVE)
                 .stream()
                 .map(ReviewImageMapping::getImageUrl)
                 .toList();

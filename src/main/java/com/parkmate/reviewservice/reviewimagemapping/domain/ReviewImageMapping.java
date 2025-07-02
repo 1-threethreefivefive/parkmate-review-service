@@ -32,10 +32,6 @@ public class ReviewImageMapping extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String type;
 
-    @Comment("이미지 인덱스 (0~4), 비디오 0")
-    @Column(name = "image_index")
-    private Integer imageIndex;
-
     @Comment("삭제 일시 (Soft Delete 적용)")
     @Column
     private LocalDateTime deletedAt;
@@ -48,13 +44,11 @@ public class ReviewImageMapping extends BaseEntity {
     @Builder
     private ReviewImageMapping(String reviewUuid,
                                String imageUrl,
-                               String type,
-                               Integer imageIndex) {
+                               String type) {
 
         this.reviewUuid = reviewUuid;
         this.imageUrl = imageUrl;
         this.type = type;
-        this.imageIndex = imageIndex;
         this.status = ReviewImageMappingStatus.ACTIVE;
         this.deletedAt = null;
     }
