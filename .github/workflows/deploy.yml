@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - dev
-      - chore/cicd-setup
-      - fix/cicd-path
 
 jobs:
   deploy:
