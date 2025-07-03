@@ -1,3 +1,5 @@
+# parkmate-review-service
+
 ## 📌 서비스 소개
 
 **Parkmate Review Service**는 주차장 이용자들이 직접 리뷰(평점, 후기, 사진, 동영상 등)를 남기고, 다른 사람의 리뷰를 확인할 수 있도록 도와주는 백엔드 서버입니다.  
