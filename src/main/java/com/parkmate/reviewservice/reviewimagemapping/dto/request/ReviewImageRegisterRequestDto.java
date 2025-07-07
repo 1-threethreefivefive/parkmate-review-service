@@ -8,15 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewImageRegisterRequestDto {
 
-    private String reviewUuid;
     private String imageUrl;
     private String type;
 
     @Builder
-    private ReviewImageRegisterRequestDto(String reviewUuid,
-                                          String imageUrl,
+    private ReviewImageRegisterRequestDto(String imageUrl,
                                           String type) {
-        this.reviewUuid = reviewUuid;
+
         this.imageUrl = imageUrl;
         this.type = type;
     }
