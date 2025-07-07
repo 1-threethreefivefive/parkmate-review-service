@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  review:
+    container_name: review-service
+    image: 090188239653.dkr.ecr.ap-northeast-2.amazonaws.com/review-service
+    volumes:
+      - /home/ubuntu/config/review/application.yml:/config/review/application.yml
+    environment:
+      - SPRING_CONFIG_LOCATION=file:/config/review/application.yml
+    ports:
+      - "8084:8084"
+    env_file:
+      - /home/ubuntu/env/.env.review
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
