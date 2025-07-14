@@ -13,5 +13,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Optional<Review> findByReviewUuidAndStatus(String reviewUuid, ReviewStatus status);
 
-   boolean existsByReservationCode(String reservationCode);
+    boolean existsByReservationCode(String reservationCode);
 }
