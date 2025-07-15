@@ -19,5 +19,5 @@ public interface ReviewService {
 
     void softDeleteReview(String reviewUuid, String userUuid);
 
-    Optional<Review> findByPaymentCode(String paymentCode);
+    Optional<Review> findByReservationCode(String ReservationCode);
 }

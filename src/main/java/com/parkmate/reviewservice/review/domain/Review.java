@@ -40,9 +40,8 @@ public class Review extends BaseEntity {
     @Comment("평점")
     private int rating;
 
-   // @Comment("결제 코드")
-    //@Column(nullable = false, length = 64, unique = true)
-    private String paymentCode;
+    @Column(name = "reservation_code", nullable = false, unique = true)
+    private String reservationCode;
 
     @Comment("삭제 일시")
     @Column
@@ -59,14 +58,14 @@ public class Review extends BaseEntity {
                    String parkingLotUuid,
                    String content,
                    int rating,
-                   String paymentCode) {
+                   String reservationCode) {
 
         this.reviewUuid = reviewUuid;
         this.userUuid = userUuid;
         this.parkingLotUuid = parkingLotUuid;
         this.content = content;
         this.rating = rating;
-        this.paymentCode = paymentCode;
+        this.reservationCode = reservationCode;
         this.deletedAt = null;
         this.status = ReviewStatus.ACTIVE;
     }

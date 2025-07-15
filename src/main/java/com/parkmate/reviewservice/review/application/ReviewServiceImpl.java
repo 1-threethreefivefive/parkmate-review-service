@@ -24,27 +24,25 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review register(ReviewRegisterRequestDto reviewRegisterRequestDto) {
 
-//        // 결제 건 당 리뷰 1건 → paymentKey 중복 체크
-//        boolean reviewExistsForPayment = reviewRepository.existsByPaymentKey(requestDto.getPaymentKey());
-//        if (reviewExistsForPayment) {
-//            throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS);
-//        }
+        // 예약 건당 리뷰 1건 → reservationCode 중복 체크
+        boolean reviewExistsForReservation = reviewRepository.existsByReservationCode(reviewRegisterRequestDto.getReservationCode());
+        if (reviewExistsForReservation) {
+            throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS_FOR_PARKING_LOT);
+        }
 
-//        // 동일 유저 + 동일 주차장 → 중복 리뷰 금지
-//        boolean reviewExistsForUserAndParkingLot = reviewRepository.existsByUserUuidAndParkingLotUuid(
-//
-//                reviewRegisterRequestDto.getUserUuid(),
-//                reviewRegisterRequestDto.getParkingLotUuid()
-//        );
-//
-//        if (reviewExistsForUserAndParkingLot) {
-//            throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS_FOR_PARKING_LOT);
-//        }
+        // 동일 유저 + 동일 주차장 → 중복 리뷰 금지
+        boolean reviewExistsForUserAndParkingLot = reviewRepository.existsByUserUuidAndParkingLotUuid(
+                reviewRegisterRequestDto.getUserUuid(),
+                reviewRegisterRequestDto.getParkingLotUuid()
+        );
+        if (reviewExistsForUserAndParkingLot) {
+            throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS_FOR_PARKING_LOT);
+        }
 
         Review review = Review.builder()
                 .userUuid(reviewRegisterRequestDto.getUserUuid())
                 .parkingLotUuid(reviewRegisterRequestDto.getParkingLotUuid())
-                // .paymentKey(requestDto.getPaymentKey())
+                .reservationCode(reviewRegisterRequestDto.getReservationCode())
                 .content(reviewRegisterRequestDto.getContent())
                 .rating(reviewRegisterRequestDto.getRating())
                 .build();
@@ -99,7 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Optional<Review> findByPaymentCode(String paymentCode) {
-        return reviewRepository.findByPaymentCode(paymentCode);
+    public Optional<Review> findByReservationCode(String reservationCode) {
+        return reviewRepository.findByReservationCode(reservationCode);
     }
 }

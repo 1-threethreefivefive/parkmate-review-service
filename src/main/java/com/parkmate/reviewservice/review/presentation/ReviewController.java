@@ -115,9 +115,9 @@ public class ReviewController {
             tags = {"REVIEW-SERVICE"}
     )
     @GetMapping
-    public ApiResponse<ReviewExistenceResponseDto> checkReviewExistence(@RequestParam String paymentCode) {
+    public ApiResponse<ReviewExistenceResponseDto> checkReviewExistence(@RequestParam String reservationCode) {
 
-        return reviewService.findByPaymentCode(paymentCode)
+        return reviewService.findByReservationCode(reservationCode)
                 .map(review -> ApiResponse.of(
                         HttpStatus.OK,
                         "리뷰가 존재합니다.",
