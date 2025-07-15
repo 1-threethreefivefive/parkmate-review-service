@@ -15,6 +15,7 @@ public class ReviewRegisterRequestDto {
     private String parkingLotUuid;
     private String content;
     private Integer rating;
+    private String reservationCode;
     private List<ReviewImageRegisterRequestDto> imageMappings;
 
     @Builder
@@ -22,11 +23,13 @@ public class ReviewRegisterRequestDto {
                                      String parkingLotUuid,
                                      String content,
                                      Integer rating,
+                                     String reservationCode,
                                      List<ReviewImageRegisterRequestDto> imageMappings) {
         this.userUuid = userUuid;
         this.parkingLotUuid = parkingLotUuid;
         this.content = content;
         this.rating = rating;
+        this.reservationCode = reservationCode;
         this.imageMappings = imageMappings;
     }
 
@@ -37,6 +40,7 @@ public class ReviewRegisterRequestDto {
                 .parkingLotUuid(reviewRegisterRequestVo.getParkingLotUuid())
                 .content(reviewRegisterRequestVo.getContent())
                 .rating(reviewRegisterRequestVo.getRating())
+                .reservationCode(reviewRegisterRequestVo.getReservationCode())
                 .imageMappings(reviewRegisterRequestVo.getImageMappings())
                 .build();
     }

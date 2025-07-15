@@ -12,5 +12,6 @@ public class ReviewRegisterRequestVo {
     private String parkingLotUuid;
     private int  rating;
     private String content;
+    private String reservationCode;
     private List<ReviewImageRegisterRequestDto> imageMappings;
 }
