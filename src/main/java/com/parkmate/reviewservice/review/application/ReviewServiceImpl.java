@@ -30,11 +30,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS_FOR_PARKING_LOT);
         }
 
+
         // 동일 유저 + 동일 주차장 → 중복 리뷰 금지
         boolean reviewExistsForUserAndParkingLot = reviewRepository.existsByUserUuidAndParkingLotUuid(
                 reviewRegisterRequestDto.getUserUuid(),
                 reviewRegisterRequestDto.getParkingLotUuid()
         );
+
         if (reviewExistsForUserAndParkingLot) {
             throw new BaseException(ResponseStatus.REVIEW_ALREADY_EXISTS_FOR_PARKING_LOT);
         }
